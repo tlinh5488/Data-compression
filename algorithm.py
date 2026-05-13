@@ -66,11 +66,10 @@ def huffman_compress(data):
 
     encoded = ''.join(codes[c] for c in data)
 
-    # overhead: lưu bảng mã
     overhead_bits = 0
     for char, code in codes.items():
-        overhead_bits += 8        # ký tự
-        overhead_bits += 8        # độ dài mã
+        overhead_bits += 8
+        overhead_bits += 8
         overhead_bits += len(code)
 
     end = time.perf_counter()
@@ -94,7 +93,7 @@ def huffman_decompress(encoded, root):
 
 
 # =========================
-# RLE (FIXED)
+# RLE
 # =========================
 def rle_compress(data):
     start = time.perf_counter()
@@ -215,7 +214,6 @@ class CompressionExperiment:
             _, t2 = rle_decompress(c)
             compressed_bits = self.rle_bits(c)
 
-            # 🔥 FIX: fallback nếu không nén được
             if compressed_bits >= original_bits:
                 compressed_bits = original_bits
 
@@ -237,26 +235,42 @@ class CompressionExperiment:
             for mode in self.modes:
                 data = self.generate_data(size, mode)
 
-                print(f"\nText: {size}, Mode: {mode}")
-                print(f"{'Algorithm':<15}{'Ratio':<10}{'Saving (%)':<15}{'Time (s)':<10}")
+                line = f"\nText: {size}, Mode: {mode}"
+                print(line)
+                OUTPUT_FILE.write(line + "\n")
+
+                header = f"{'Algorithm':<15}{'Ratio':<10}{'Saving (%)':<15}{'Time (s)':<10}"
+                print(header)
+                OUTPUT_FILE.write(header + "\n")
 
                 for alg in ["Huffman", "RLE", "LZW"]:
                     r, s, t = self.evaluate(data, alg)
-                    print(f"{alg:<15}{r:<10.3f}{s:<15.2f}{t:<10.6f}")
+                    row = f"{alg:<15}{r:<10.3f}{s:<15.2f}{t:<10.6f}"
+                    print(row)
+                    OUTPUT_FILE.write(row + "\n")
 
-                print("-" * 60)
+                sep = "-" * 60
+                print(sep)
+                OUTPUT_FILE.write(sep + "\n")
 
 
 # =========================
 # MAIN
 # =========================
 def main():
+    global OUTPUT_FILE
+    OUTPUT_FILE = open("output.txt", "w", encoding="utf-8")
+
     print("===== FINAL COMPRESSION EXPERIMENT (RLE FIXED) =====")
+    OUTPUT_FILE.write("===== FINAL COMPRESSION EXPERIMENT (RLE FIXED) =====\n")
 
     exp = CompressionExperiment()
     exp.run()
 
     print("\n===== DONE =====")
+    OUTPUT_FILE.write("\n===== DONE =====\n")
+
+    OUTPUT_FILE.close()
 
 
 if __name__ == "__main__":
